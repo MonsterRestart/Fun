@@ -1,6 +1,7 @@
-*.opensdf
 Awakens/Awakens.sdf
+Awakens/Awakens.opensdf
+Awakens/.vs/
+Awakens/ipch/
+Awakens/x64/
 Awakens/Debug/
 Awakens/Release/
-Awakens/.vs/
-Awakens/x64/

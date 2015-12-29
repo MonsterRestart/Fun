@@ -14,6 +14,9 @@
     <Filter Include="System">
       <UniqueIdentifier>{db7cf107-62d2-403b-abb5-1506c3539ff7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="D3D">
+      <UniqueIdentifier>{2d7c1564-e19d-4b89-a7d1-9c3ea23ce9ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -32,6 +35,9 @@
     <ClInclude Include="Input\inputclass.h">
       <Filter>Input</Filter>
     </ClInclude>
+    <ClInclude Include="D3D\d3dclass.h">
+      <Filter>D3D</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Awakens.cpp" />
@@ -44,6 +50,9 @@
     </ClCompile>
     <ClCompile Include="Input\inputclass.cpp">
       <Filter>Input</Filter>
+    </ClCompile>
+    <ClCompile Include="D3D\d3dclass.cpp">
+      <Filter>D3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

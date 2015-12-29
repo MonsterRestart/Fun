@@ -59,22 +59,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     delete System;
     System = 0;
 
-    //HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_AWAKENS));
-
-    //MSG msg;
-
-    //// Main message loop:
-    //while (GetMessage(&msg, nullptr, 0, 0))
-    //{
-    //    if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-    //    {
-    //        TranslateMessage(&msg);
-    //        DispatchMessage(&msg);
-    //    }
-    //}
-
-    //return (int) msg.wParam;
-
     return 0;
 }
 
