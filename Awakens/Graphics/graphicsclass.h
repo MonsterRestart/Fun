@@ -9,6 +9,9 @@
 // MY CLASS INCLUDES //
 ///////////////////////
 #include "D3D/d3dclass.h"
+#include "Camera/cameraclass.h"
+#include "Model/modelclass.h"
+#include "ColorShader/colorshaderclass.h"
 
 
 /////////////
@@ -39,6 +42,9 @@ private:
 
 private:
 	D3DClass* m_D3D;
+	CameraClass* m_Camera;
+	ModelClass* m_Model;
+	ColorShaderClass* m_ColorShader;
 };
 
 #endif

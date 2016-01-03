@@ -11,7 +11,7 @@
 #pragma comment(lib, "d3d10.lib")
 //#pragma comment(lib, "d3dx10.lib")
 #pragma comment(lib, "dxgi.lib")
-
+#pragma comment(lib, "D3DCompiler.lib")
 
 //////////////
 // INCLUDES //

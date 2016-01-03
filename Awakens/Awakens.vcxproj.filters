@@ -17,6 +17,15 @@
     <Filter Include="D3D">
       <UniqueIdentifier>{2d7c1564-e19d-4b89-a7d1-9c3ea23ce9ca}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Camera">
+      <UniqueIdentifier>{cd3f9e0d-fd54-4dd4-b0f1-1fee80961473}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ColorShader">
+      <UniqueIdentifier>{de822cfb-14cd-4526-b9da-1b6dc4aef3c9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Model">
+      <UniqueIdentifier>{e8f61288-0cfa-4c3b-899b-a5051a69ffc4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -38,6 +47,15 @@
     <ClInclude Include="D3D\d3dclass.h">
       <Filter>D3D</Filter>
     </ClInclude>
+    <ClInclude Include="Camera\cameraclass.h">
+      <Filter>Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorShader\colorshaderclass.h">
+      <Filter>ColorShader</Filter>
+    </ClInclude>
+    <ClInclude Include="Model\modelclass.h">
+      <Filter>Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Awakens.cpp" />
@@ -54,6 +72,15 @@
     <ClCompile Include="D3D\d3dclass.cpp">
       <Filter>D3D</Filter>
     </ClCompile>
+    <ClCompile Include="Camera\cameraclass.cpp">
+      <Filter>Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorShader\colorshaderclass.cpp">
+      <Filter>ColorShader</Filter>
+    </ClCompile>
+    <ClCompile Include="Model\modelclass.cpp">
+      <Filter>Model</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Awakens.rc">
@@ -67,5 +94,13 @@
     <Image Include="Awakens.ico">
       <Filter>Resource Files</Filter>
     </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="ColorShader\colorPS.fx">
+      <Filter>ColorShader</Filter>
+    </FxCompile>
+    <FxCompile Include="ColorShader\colorVS.fx">
+      <Filter>ColorShader</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>

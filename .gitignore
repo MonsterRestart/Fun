@@ -5,3 +5,5 @@ Awakens/ipch/
 Awakens/x64/
 Awakens/Debug/
 Awakens/Release/
+*.diagsession
+*.user
