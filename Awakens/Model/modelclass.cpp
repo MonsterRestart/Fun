@@ -3,28 +3,21 @@
 ////////////////////////////////////////////////////////////////////////////////
 #include "stdafx.h"
 #include "modelclass.h"
+#include <new>
 
 using namespace DirectX;
 
 
 ModelClass::ModelClass()
-{
-    m_vertexBuffer = 0;
-    m_indexBuffer = 0;
-}
-
-
-ModelClass::ModelClass(const ModelClass& other)
+    : m_vertexBuffer( nullptr )
+    , m_indexBuffer( nullptr )
+    , m_vertexCount( 0 )
+    , m_indexCount( 0 )
+    , m_Texture( nullptr )
 {
 }
 
-
-ModelClass::~ModelClass()
-{
-}
-
-
-bool ModelClass::Initialize(ID3D10Device* device)
+bool ModelClass::Initialize(ID3D10Device* device, WCHAR* textureFilename)
 {
     bool result;
 
@@ -36,12 +29,22 @@ bool ModelClass::Initialize(ID3D10Device* device)
         return false;
     }
 
+    // Load the texture for this model.
+    result = LoadTexture(device, textureFilename);
+    if(!result)
+    {
+        return false;
+    }
+
     return true;
 }
 
 
 void ModelClass::Shutdown()
 {
+    // Release the model texture.
+    ReleaseTexture();
+
     // Release the vertex and index buffers.
     ShutdownBuffers();
 
@@ -64,6 +67,12 @@ int ModelClass::GetIndexCount()
 }
 
 
+ID3D10ShaderResourceView* ModelClass::GetTexture()
+{
+    return m_Texture->GetTexture();
+}
+
+
 bool ModelClass::InitializeBuffers(ID3D10Device* device)
 {
     VertexType* vertices;
@@ -80,7 +89,14 @@ bool ModelClass::InitializeBuffers(ID3D10Device* device)
     m_indexCount = 3;
 
     // Create the vertex array.
-    vertices = new VertexType[m_vertexCount];
+    // Aligned because it contains XMVECTOR members that are declared '__declspec(align(16)) struct XMMATRIX' in C:\Program Files (x86)\Windows Kits\10\Include\10.0.10240.0\um\DirectXMath.h
+    void* alignedvertices = _aligned_malloc( sizeof( VertexType ) * m_vertexCount, 16 );
+    if( !alignedvertices )
+    {
+        return false;
+    }
+    vertices = new ( alignedvertices ) VertexType[m_vertexCount];
+    //vertices = new VertexType[m_vertexCount];
     if(!vertices)
     {
         return false;
@@ -95,13 +111,16 @@ bool ModelClass::InitializeBuffers(ID3D10Device* device)
 
     // Load the vertex array with data.
     vertices[0].position = XMVECTOR{ -1.0f, -1.0f, 0.0f, 1.0f };  // Bottom left.
-    vertices[0].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    //vertices[0].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    vertices[0].texture = XMFLOAT2(0.0f, 1.0f);
 
     vertices[1].position = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };  // Top middle.
-    vertices[1].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    //vertices[1].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    vertices[1].texture = XMFLOAT2(0.5f, 0.0f);
 
     vertices[2].position = XMVECTOR{ 1.0f, -1.0f, 0.0f, 1.0f };  // Bottom right.
-    vertices[2].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    //vertices[2].color = XMVECTOR{ 0.0f, 1.0f, 0.0f, 1.0f };
+    vertices[2].texture = XMFLOAT2(1.0f, 1.0f);
 
     // Load the index array with data.
     indices[0] = 0;  // Bottom left.
@@ -143,7 +162,8 @@ bool ModelClass::InitializeBuffers(ID3D10Device* device)
     }
 
     // Release the arrays now that the vertex and index buffers have been created and loaded.
-    delete [] vertices;
+    _aligned_free( reinterpret_cast< void* >( vertices ) );
+    //delete [] vertices;
     vertices = 0;
 
     delete [] indices;
@@ -191,6 +211,43 @@ void ModelClass::RenderBuffers(ID3D10Device* device)
 
     // Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
     device->IASetPrimitiveTopology(D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+    return;
+}
+
+
+bool ModelClass::LoadTexture(ID3D10Device* device, WCHAR* filename)
+{
+    bool result;
+
+
+    // Create the texture object.
+    m_Texture = new TextureClass;
+    if(!m_Texture)
+    {
+        return false;
+    }
+
+    // Initialize the texture object.
+    result = m_Texture->Initialize(device, filename);
+    if(!result)
+    {
+        return false;
+    }
+
+    return true;
+}
+
+
+void ModelClass::ReleaseTexture()
+{
+    // Release the texture object.
+    if(m_Texture)
+    {
+        m_Texture->Shutdown();
+        delete m_Texture;
+        m_Texture = 0;
+    }
 
     return;
 }

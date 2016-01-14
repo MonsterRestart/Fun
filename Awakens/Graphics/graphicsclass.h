@@ -12,6 +12,7 @@
 #include "Camera/cameraclass.h"
 #include "Model/modelclass.h"
 #include "ColorShader/colorshaderclass.h"
+#include "Texture/Shader/textureshaderclass.h"
 
 
 /////////////
@@ -45,6 +46,7 @@ private:
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
 	ColorShaderClass* m_ColorShader;
+	TextureShaderClass* m_TextureShader;
 };
 
 #endif

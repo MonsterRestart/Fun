@@ -1,8 +1,8 @@
 ////////////////////////////////////////////////////////////////////////////////
-// Filename: colorshaderclass.h
+// Filename: textureshaderclass.h
 ////////////////////////////////////////////////////////////////////////////////
-#ifndef _COLORSHADERCLASS_H_
-#define _COLORSHADERCLASS_H_
+#ifndef _TEXTURESHADERCLASS_H_
+#define _TEXTURESHADERCLASS_H_
 
 
 //////////////
@@ -13,23 +13,23 @@
 #include <xstring>
 
 ////////////////////////////////////////////////////////////////////////////////
-// Class name: ColorShaderClass
+// Class name: TextureShaderClass
 ////////////////////////////////////////////////////////////////////////////////
-class ColorShaderClass
+class TextureShaderClass
 {
 public:
-    ColorShaderClass();
+    TextureShaderClass();
 
     bool Initialize(ID3D10Device*, HWND);
     void Shutdown();
-    void Render(ID3D10Device*, int, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
+    void Render(ID3D10Device*, int, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, ID3D10ShaderResourceView*);
 
 private:
     bool InitializeShader( ID3D10Device*, HWND, const std::wstring&, const std::wstring& );
     void ShutdownShader();
     void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-    void SetShaderParameters(const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&);
+    void SetShaderParameters(ID3D10Device* device, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, const DirectX::XMMATRIX&, ID3D10ShaderResourceView*);
     void RenderShader(ID3D10Device*, int);
 
 private:

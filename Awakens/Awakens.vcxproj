@@ -178,9 +178,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Awakens.h" />
+    <ClInclude Include="BlobResource\blobResource.h" />
     <ClInclude Include="Camera\cameraclass.h" />
     <ClInclude Include="ColorShader\colorshaderclass.h" />
     <ClInclude Include="D3D\d3dclass.h" />
+    <ClInclude Include="DDS\DDS.h" />
+    <ClInclude Include="DDS\DDSTextureLoader.h" />
     <ClInclude Include="Graphics\graphicsclass.h" />
     <ClInclude Include="Input\inputclass.h" />
     <ClInclude Include="Model\modelclass.h" />
@@ -188,12 +191,16 @@
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="System\systemclass.h" />
     <ClInclude Include="targetver.h" />
+    <ClInclude Include="Texture\Shader\textureshaderclass.h" />
+    <ClInclude Include="Texture\textureclass.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Awakens.cpp" />
+    <ClCompile Include="BlobResource\blobResource.cpp" />
     <ClCompile Include="Camera\cameraclass.cpp" />
     <ClCompile Include="ColorShader\colorshaderclass.cpp" />
     <ClCompile Include="D3D\d3dclass.cpp" />
+    <ClCompile Include="DDS\DDSTextureLoader.cpp" />
     <ClCompile Include="Graphics\graphicsclass.cpp" />
     <ClCompile Include="Input\inputclass.cpp" />
     <ClCompile Include="Model\modelclass.cpp" />
@@ -204,12 +211,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="System\systemclass.cpp" />
+    <ClCompile Include="Texture\Shader\textureshaderclass.cpp" />
+    <ClCompile Include="Texture\textureclass.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Awakens.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Awakens.ico" />
+    <Image Include="Data\seafloor.dds" />
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -222,10 +232,10 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ColorPixelShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Debug\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)\Release\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)\x64\Debug\%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)\x64\Release\%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
     </FxCompile>
     <FxCompile Include="ColorShader\colorVS.fx">
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">ColorVertexShader</EntryPointName>
@@ -236,10 +246,38 @@
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">ColorVertexShader</EntryPointName>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)Debug/%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)Release/%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)x64/Debug/%(Filename).cso</ObjectFileOutput>
-      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProectjDir)x64/Release/%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Texture\Shader\texturePS.psh">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TexturePixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TexturePixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TexturePixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TexturePixelShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+    </FxCompile>
+    <FxCompile Include="Texture\Shader\textureVS.vsh">
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">TextureVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TextureVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TextureVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TextureVertexShader</EntryPointName>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
+      <ObjectFileOutput Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)$(IntermediateOutputPath)%(Filename).cso</ObjectFileOutput>
     </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

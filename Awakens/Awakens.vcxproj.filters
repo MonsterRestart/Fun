@@ -26,6 +26,18 @@
     <Filter Include="Model">
       <UniqueIdentifier>{e8f61288-0cfa-4c3b-899b-a5051a69ffc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Texture">
+      <UniqueIdentifier>{dfba00da-905a-4e85-ac5e-3d9ae2605049}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Texture\Shader">
+      <UniqueIdentifier>{dd70f17c-a9c2-4d9d-987f-7355baac9d56}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="BlobResource">
+      <UniqueIdentifier>{eabac3c1-483c-49e0-9ce9-3fdead4cf3ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DDS">
+      <UniqueIdentifier>{61fa60f1-81f8-48d6-9756-950e77d8f9af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -56,6 +68,21 @@
     <ClInclude Include="Model\modelclass.h">
       <Filter>Model</Filter>
     </ClInclude>
+    <ClInclude Include="Texture\Shader\textureshaderclass.h">
+      <Filter>Texture\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="Texture\textureclass.h">
+      <Filter>Texture</Filter>
+    </ClInclude>
+    <ClInclude Include="BlobResource\blobResource.h">
+      <Filter>BlobResource</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS\DDS.h">
+      <Filter>DDS</Filter>
+    </ClInclude>
+    <ClInclude Include="DDS\DDSTextureLoader.h">
+      <Filter>DDS</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Awakens.cpp" />
@@ -81,6 +108,18 @@
     <ClCompile Include="Model\modelclass.cpp">
       <Filter>Model</Filter>
     </ClCompile>
+    <ClCompile Include="Texture\Shader\textureshaderclass.cpp">
+      <Filter>Texture\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="Texture\textureclass.cpp">
+      <Filter>Texture</Filter>
+    </ClCompile>
+    <ClCompile Include="BlobResource\blobResource.cpp">
+      <Filter>BlobResource</Filter>
+    </ClCompile>
+    <ClCompile Include="DDS\DDSTextureLoader.cpp">
+      <Filter>DDS</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Awakens.rc">
@@ -94,6 +133,9 @@
     <Image Include="Awakens.ico">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="Data\seafloor.dds">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="ColorShader\colorPS.fx">
@@ -101,6 +143,12 @@
     </FxCompile>
     <FxCompile Include="ColorShader\colorVS.fx">
       <Filter>ColorShader</Filter>
+    </FxCompile>
+    <FxCompile Include="Texture\Shader\texturePS.psh">
+      <Filter>Texture\Shader</Filter>
+    </FxCompile>
+    <FxCompile Include="Texture\Shader\textureVS.vsh">
+      <Filter>Texture\Shader</Filter>
     </FxCompile>
   </ItemGroup>
 </Project>

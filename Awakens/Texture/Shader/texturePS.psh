@@ -1,0 +1,48 @@
+////////////////////////////////////////////////////////////////////////////////
+// Filename: texture.psh
+////////////////////////////////////////////////////////////////////////////////
+
+
+/////////////
+// GLOBALS //
+/////////////
+cbuffer cb0
+{
+    Texture2D shaderTexture      : packoffset(c0);
+};
+
+
+///////////////////
+// SAMPLE STATES //
+///////////////////
+SamplerState SampleType
+{
+    Filter = MIN_MAG_MIP_LINEAR;
+    AddressU = Wrap;
+    AddressV = Wrap;
+};
+
+
+//////////////
+// TYPEDEFS //
+//////////////
+struct PixelInputType
+{
+    float4 position : SV_POSITION;
+    float2 tex : TEXCOORD0;
+};
+
+
+////////////////////////////////////////////////////////////////////////////////
+// Pixel Shader
+////////////////////////////////////////////////////////////////////////////////
+float4 TexturePixelShader(PixelInputType input) : SV_Target
+{
+    float4 textureColor;
+
+
+    // Sample the pixel color from the texture using the sampler at this texture coordinate location.
+    textureColor = shaderTexture.Sample(SampleType, input.tex);
+
+    return textureColor;
+}
