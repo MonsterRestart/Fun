@@ -44,7 +44,7 @@ int Model::FormatFromFilename(const char *filename)
 }
 
 
-Model::Model()
+Model::Model( )
 	: m_pMesh(nullptr)
 	, m_pMaterial(nullptr)
 	, m_pVertexData(nullptr)
@@ -52,6 +52,20 @@ Model::Model()
 	, m_pVertexDataDepth(nullptr)
 	, m_pIndexDataDepth(nullptr)
 	, m_SRVs(nullptr)
+    , m_transformation()
+{
+	Clear();
+}
+
+Model::Model( const Matrix4& transformation )
+	: m_pMesh(nullptr)
+	, m_pMaterial(nullptr)
+	, m_pVertexData(nullptr)
+	, m_pIndexData(nullptr)
+	, m_pVertexDataDepth(nullptr)
+	, m_pIndexDataDepth(nullptr)
+	, m_SRVs(nullptr)
+    , m_transformation( transformation )
 {
 	Clear();
 }
@@ -108,6 +122,7 @@ bool Model::Load(const char *filename)
 	case format_none:
 #ifdef MODEL_ENABLE_ASSIMP
 		rval = LoadAssimp(filename);
+	    needToOptimize = true;
 #endif
 		break;
 

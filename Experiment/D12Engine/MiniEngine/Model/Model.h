@@ -35,13 +35,19 @@ public:
 	};
 	static const char *s_FormatString[];
 	static int FormatFromFilename(const char *filename);
-
+    
 	Model();
+	Model( const Matrix4& transformation );
 	~Model();
 
 	void Clear();
 	bool Load(const char *filename);
 	bool Save(const char *filename) const;
+
+    const Matrix4& transformation() const
+    {
+        return m_transformation;
+    }
 
 	struct BoundingBox
 	{
@@ -233,6 +239,8 @@ private:
 	void ReleaseTextures();
 	void LoadTextures();
 	D3D12_CPU_DESCRIPTOR_HANDLE* m_SRVs;
+
+    Matrix4 m_transformation;
 };
 
 }

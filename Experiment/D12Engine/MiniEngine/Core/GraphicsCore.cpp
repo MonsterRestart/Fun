@@ -109,10 +109,10 @@ namespace Graphics
 	const char* HDRModeLabels[] = { "HDR", "LDR", "Side-by-Side" };
 	EnumVar HDRDebugMode("Graphics/Display/HDR Debug Mode", 0, 3, HDRModeLabels);
 
-	uint32_t g_NativeWidth = 1920;
-	uint32_t g_NativeHeight = 1080;
-	uint32_t g_DisplayWidth = 1920;
-	uint32_t g_DisplayHeight = 1080;
+	uint32_t g_NativeWidth      = 1920 / 2; // 1920;
+	uint32_t g_NativeHeight     = 1080 / 2; // 1080;
+	uint32_t g_DisplayWidth     = 1920 / 2; // 1920;
+	uint32_t g_DisplayHeight    = 1080 / 2; // 1080;
 	ColorBuffer g_PreDisplayBuffer;
 
 	void SetNativeResolution(void)

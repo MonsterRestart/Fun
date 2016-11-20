@@ -67,31 +67,69 @@
     <Link>
       <AdditionalOptions>/nodefaultlib:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
+      <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
+    <PostBuildEvent>
+      <Command>xcopy /E /C /I /R /Y $(SolutionDir)..\ModelConverter\assimp-3.1.1-win-binaries\bin64\assimp.dll $(SolutionDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <Link />
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
+      <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /E /C /I /R /Y $(SolutionDir)..\ModelConverter\assimp-3.1.1-win-binaries\bin64\assimp.dll $(SolutionDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link />
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
+      <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>xcopy /E /C /I /R /Y $(SolutionDir)..\ModelConverter\assimp-3.1.1-win-binaries\bin64\assimp.dll $(SolutionDir)</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\Dav\container\container.cpp" />
+    <ClCompile Include="..\..\..\..\Dav\dav.cpp" />
+    <ClCompile Include="..\..\..\..\DevGraphics\devGraphics.cpp" />
+    <ClCompile Include="..\..\..\..\Misc\misc.cpp" />
+    <ClCompile Include="..\..\..\..\Misc\PID\miscPID.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Debug\physicsDebug.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Dynamics\physicsDynamics.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Edge\physicsEdge.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Engine\physicsEngine.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Feature\physicsFeature.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\HeightMap\physicsHeightMap.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Object\physicsObject.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Shape\Pair\physicsShapePair.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Shape\physicsShape.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Shape\VClip\physicsShapeVCLip.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Triangle\physicsTriangle.cpp" />
+    <ClCompile Include="..\..\..\..\Physics\Vertex\physicsVertex.cpp" />
     <ClCompile Include="Engine.cpp" />
+    <ClCompile Include="IndexOptimizePostTransform.cpp" />
+    <ClCompile Include="ModelAssimp.cpp" />
+    <ClCompile Include="ModelOptimize.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="../Core/Core_VS14.vcxproj">
@@ -174,6 +212,7 @@
       <DeploymentContent>true</DeploymentContent>
     </None>
     <None Include="Shaders\EngineRS.hlsli" />
+    <None Include="Shaders\PhysicsRS.hlsli" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DepthViewerPS.hlsl">
@@ -188,9 +227,56 @@
     <FxCompile Include="Shaders\EngineVS.hlsl">
       <ShaderType>Vertex</ShaderType>
     </FxCompile>
+    <FxCompile Include="Shaders\PhysicsPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\PhysicsVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">Vertex</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="UWP.appxmanifest" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\..\Dav\container\container.h" />
+    <ClInclude Include="..\..\..\..\Dav\container\container.hpp" />
+    <ClInclude Include="..\..\..\..\Dav\container\containerFwd.h" />
+    <ClInclude Include="..\..\..\..\Dav\dav.h" />
+    <ClInclude Include="..\..\..\..\Dav\davFwd.h" />
+    <ClInclude Include="..\..\..\..\DevGraphics\devGraphics.h" />
+    <ClInclude Include="..\..\..\..\DevGraphics\devGraphicsFwd.h" />
+    <ClInclude Include="..\..\..\..\Misc\misc.h" />
+    <ClInclude Include="..\..\..\..\Misc\miscFwd.h" />
+    <ClInclude Include="..\..\..\..\Misc\PID\miscPID.h" />
+    <ClInclude Include="..\..\..\..\Misc\PID\miscPIDFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Debug\physicsDebug.h" />
+    <ClInclude Include="..\..\..\..\Physics\Debug\physicsDebugFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Dynamics\physicsDynamics.h" />
+    <ClInclude Include="..\..\..\..\Physics\Dynamics\physicsDynamicsFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Edge\physicsEdge.h" />
+    <ClInclude Include="..\..\..\..\Physics\Edge\physicsEdgeFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Engine\physicsEngine.h" />
+    <ClInclude Include="..\..\..\..\Physics\Engine\physicsEngineFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Feature\physicsFeature.h" />
+    <ClInclude Include="..\..\..\..\Physics\Feature\physicsFeatureFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\HeightMap\physicsHeightMap.h" />
+    <ClInclude Include="..\..\..\..\Physics\HeightMap\physicsHeightMapFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Object\physicsObject.h" />
+    <ClInclude Include="..\..\..\..\Physics\Object\physicsObjectFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\Pair\physicsShapePair.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\Pair\physicsShapePairFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\physicsShape.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\physicsShapeFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\VClip\physicsShapeVCLip.h" />
+    <ClInclude Include="..\..\..\..\Physics\Shape\VClip\physicsShapeVCLipFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Triangle\physicsTriangle.h" />
+    <ClInclude Include="..\..\..\..\Physics\Triangle\physicsTriangleFwd.h" />
+    <ClInclude Include="..\..\..\..\Physics\Vertex\physicsVertex.h" />
+    <ClInclude Include="..\..\..\..\Physics\Vertex\physicsVertexFwd.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

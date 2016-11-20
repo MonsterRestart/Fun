@@ -77,6 +77,15 @@
     <Manifest>
       <EnableDPIAwareness>true</EnableDPIAwareness>
     </Manifest>
+    <ClCompile>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">_CONSOLE;%(PreprocessorDefinitions);MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">_CONSOLE;%(PreprocessorDefinitions);MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER</PreprocessorDefinitions>
+    </ClCompile>
+    <ClCompile>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Release|x64'">_CONSOLE;%(PreprocessorDefinitions);MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER</PreprocessorDefinitions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Model.h" />

@@ -245,12 +245,12 @@ bool Model::LoadAssimp(const char *filename)
 			if (srcMesh->mVertices)
 			{
 				dstPos[0] = srcMesh->mVertices[v].x;
-				dstPos[1] = -srcMesh->mVertices[v].z;
-				dstPos[2] = srcMesh->mVertices[v].y;
+				dstPos[1] = srcMesh->mVertices[v].y;
+				dstPos[2] = srcMesh->mVertices[v].z;
 
 				dstPosDepth[0] = srcMesh->mVertices[v].x;
-				dstPosDepth[1] = -srcMesh->mVertices[v].z;
-				dstPosDepth[2] = srcMesh->mVertices[v].y;
+				dstPosDepth[1] = srcMesh->mVertices[v].y;
+				dstPosDepth[2] = srcMesh->mVertices[v].z;
 			}
 			else
 			{
@@ -275,8 +275,8 @@ bool Model::LoadAssimp(const char *filename)
 			if (srcMesh->mNormals)
 			{
 				dstNormal[0] = srcMesh->mNormals[v].x;
-				dstNormal[1] = -srcMesh->mNormals[v].z;
-				dstNormal[2] = srcMesh->mNormals[v].y;
+				dstNormal[1] = srcMesh->mNormals[v].y;
+				dstNormal[2] = srcMesh->mNormals[v].z;
 			}
 			else
 			{
@@ -289,8 +289,8 @@ bool Model::LoadAssimp(const char *filename)
 			if (srcMesh->mTangents)
 			{
 				dstTangent[0] = srcMesh->mTangents[v].x;
-				dstTangent[1] = -srcMesh->mTangents[v].z;
-				dstTangent[2] = srcMesh->mTangents[v].y;
+				dstTangent[1] = srcMesh->mTangents[v].y;
+				dstTangent[2] = srcMesh->mTangents[v].z;
 			}
 			else
 			{
@@ -304,8 +304,8 @@ bool Model::LoadAssimp(const char *filename)
 			if (srcMesh->mBitangents)
 			{
 				dstBitangent[0] = srcMesh->mBitangents[v].x;
-				dstBitangent[1] = -srcMesh->mBitangents[v].z;
-				dstBitangent[2] = srcMesh->mBitangents[v].y;
+				dstBitangent[1] = srcMesh->mBitangents[v].y;
+				dstBitangent[2] = srcMesh->mBitangents[v].z;
 			}
 			else
 			{
