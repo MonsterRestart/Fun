@@ -32,7 +32,7 @@ public:
 
     // Debug Vertices
     typedef Dav::Vector< Math::Vector4, MAX_VERTICES > DebugVertices;
-    typedef Dav::Vector< uint16_t, MAX_VERTICES > DebugVertexIndicies;
+    typedef Dav::Vector< uint16_t, MAX_VERTICES > DebugVertexIndices;
 
 private:
     int m_UID;
@@ -65,19 +65,19 @@ private:
 
     // Debug Vertices
     DebugVertices m_debugVertexData;
-    DebugVertexIndicies m_debugVertexIndicies;
+    DebugVertexIndices m_debugVertexIndices;
     StructuredBuffer m_debugVertexBuffer;
     ByteAddressBuffer m_debugVertexIndexBuffer;
 
     // Debug Edges
     DebugVertices m_debugEdgeVertexData;
-    DebugVertexIndicies m_debugEdgeIndicies;
+    DebugVertexIndices m_debugEdgeIndices;
     StructuredBuffer m_debugEdgeVertexBuffer;
     ByteAddressBuffer m_debugEdgeIndexBuffer;
 
     // Debug Triangles
     DebugVertices m_debugTriangleVertexData;
-    DebugVertexIndicies m_debugTriangleIndicies;
+    DebugVertexIndices m_debugTriangleIndices;
     StructuredBuffer m_debugTriangleVertexBuffer;
     ByteAddressBuffer m_debugTriangleIndexBuffer;
 
@@ -298,9 +298,9 @@ public:
         return m_debugVertexData;
     }
 
-    const DebugVertexIndicies& debugVertexIndicies() const
+    const DebugVertexIndices& debugVertexIndices() const
     {
-        return m_debugVertexIndicies;
+        return m_debugVertexIndices;
     }
 
     const StructuredBuffer& debugVertexBuffer() const
@@ -312,6 +312,51 @@ public:
     {
         return m_debugVertexIndexBuffer;
     }
+
+    const DebugVertices& debugEdgeVertexData() const
+    {
+        return m_debugEdgeVertexData;
+    }
+
+    const DebugVertexIndices& debugEdgeIndices() const
+    {
+        return m_debugEdgeIndices;
+    }
+
+    const StructuredBuffer& debugEdgeVertexBuffer() const
+    {
+        return m_debugEdgeVertexBuffer;
+    }
+    
+    const ByteAddressBuffer& debugEdgeIndexBuffer() const
+    {
+        return m_debugEdgeIndexBuffer;
+    }
+
+    const DebugVertices& debugTriangleVertexData() const
+    {
+        return m_debugTriangleVertexData;
+    }
+
+    const DebugVertexIndices& debugTriangleIndices() const
+    {
+        return m_debugTriangleIndices;
+    }
+
+    const StructuredBuffer& debugTriangleVertexBuffer() const
+    {
+        return m_debugTriangleVertexBuffer;
+    }
+
+    const ByteAddressBuffer& debugTriangleIndexBuffer() const
+    {
+        return m_debugTriangleIndexBuffer;
+    }
+
+private:
+    void drawDebugVertices( GraphicsContext& gfxContext, const Math::Matrix4& ViewProjMat ) const;
+    void drawDebugEdges( GraphicsContext& gfxContext, const Math::Matrix4& ViewProjMat ) const;
+    void drawDebugTriangles( GraphicsContext& gfxContext, const Math::Matrix4& ViewProjMat ) const;
 };
 
 //float objectSignedDistanceFromPlaneToPoint(

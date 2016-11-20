@@ -148,10 +148,6 @@ int Engine::createPhysicsObject( const Model& model )
                     DirectX::XMVECTOR{ pNorm->normX, pNorm->normY, pNorm->normZ, 0.0f } ) );
             }
 
-            uint32_t indexCount = mesh.indexCount;
-            uint32_t startIndex = mesh.indexDataByteOffset / sizeof(uint16_t);
-            uint32_t baseVertex = model.m_VertexStride;
-
             const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( model.m_pIndexData + mesh.indexDataByteOffset );
             for( uint32_t iTriangleMeshVertexIndex = 0; iTriangleMeshVertexIndex < mesh.indexCount; iTriangleMeshVertexIndex += 3 )
             {
@@ -159,55 +155,38 @@ int Engine::createPhysicsObject( const Model& model )
 
                 for( int iEdge = 0; iEdge != 3; ++iEdge )
                 {
-                    edges.push_back( Physics::Edge( DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 0.0f } ) );
-                    edges.back().addVertexIndex( ( int )pMeshVertexIndex[ iEdge ] );
-                    edges.back().addVertexIndex( ( int )pMeshVertexIndex[ iEdge + 1 ] );
-                    edges.back().addTriangleIndex( ( int )triangles.size() );
+                    const int fromVertexIndex = pMeshVertexIndex[ iTriangleMeshVertexIndex + iEdge ];
+                    const int toVertexIndex = pMeshVertexIndex[ iTriangleMeshVertexIndex + ( ( iEdge == 2 ) ? 0 : ( iEdge + 1 ) ) ];
+                    assert( fromVertexIndex < vertices.size() );
+                    assert( toVertexIndex < vertices.size() );
 
                     edgeDirs[ iEdge ] = Vector3(
-                        vertices[ pMeshVertexIndex[ iEdge + 1 ] ].position() - 
-                        vertices[ pMeshVertexIndex[ iEdge ] ].position() );
+                        vertices[ toVertexIndex ].position() - 
+                        vertices[ fromVertexIndex ].position() );
+                    
+                    const Vector3 norm = 
+                        Vector3( vertices[ fromVertexIndex ].normal() ) +
+                        ( ( Vector3( vertices[ toVertexIndex ].normal() ) - Vector3( vertices[ fromVertexIndex ].normal() ) ) / 2.0f );
+
+                    edges.push_back( Physics::Edge( DirectX::XMVECTOR{ norm.GetX(), norm.GetY(), norm.GetZ(), 0.0f } ) );
+                    edges.back().addVertexIndex( fromVertexIndex );
+                    edges.back().addVertexIndex( toVertexIndex );
+                    edges.back().addTriangleIndex( ( int )triangles.size() );
+
                 }
 
                 const Vector3 triangleNorm = Normalize( Cross( edgeDirs[ 0 ], edgeDirs[ 1 ] ) );
                 triangles.push_back( Physics::Triangle( DirectX::XMVECTOR{ triangleNorm.GetX(), triangleNorm.GetY(), triangleNorm.GetZ(), 0.0f } ) );
 
-                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ 0 ] );
-                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ 1 ] );
-                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ 2 ] );
+                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] );
+                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] );
+                triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] );
 
                 triangles.back().addEdgeIndex( ( int )edges.size() - 1 );
                 triangles.back().addEdgeIndex( ( int )edges.size() - 2 );
                 triangles.back().addEdgeIndex( ( int )edges.size() - 3 );
             }
         }
-
-        ////const float *p = (float*)(m_pVertexData + mesh->vertexDataByteOffset + mesh->attrib[attrib_position].offset);
-        ////const float *pEnd = (float*)(m_pVertexData + mesh->vertexDataByteOffset + mesh->vertexCount * mesh->vertexStride + mesh->attrib[attrib_position].offset);
-        //for( uint32_t beginVertex = 0; beginVertex < model.m_Header.vertexDataByteSize; beginVertex += model.m_VertexStride )
-        //{
-        //    struct ModelVertex
-        //    {
-        //        float posX, posY, posZ;
-        //        float tu;
-        //        float tv;
-        //        float normX, normY, normZ;
-        //        float tanX, tanY, tanZ;
-        //        float bitanX, bitanY, bitanZ;
-        //        //float colR, colG, colB, colA;
-        //    };
-        //    //const Vector4 normal( 0.0f, 0.0f, 0.0f, 0.0f );
-        //    //const D3DCOLORVALUE colour{ 1.0f, 1.0f, 1.0f, 1.0f };
-
-        //    const ModelVertex* const pVertex = reinterpret_cast< const ModelVertex* >( &model.m_pVertexData[ beginVertex ] );
-        //    //const Vector3* const pVertex = reinterpret_cast< const Vector3* >( &model.m_pVertexData[ beginVertex ] );
-        //    vertices.push_back( Physics::Vertex(
-        //        DirectX::XMVECTOR{ pVertex->posX, pVertex->posY, pVertex->posZ, 1.0f },
-        //        DirectX::XMVECTOR{ pVertex->normX, pVertex->normY, pVertex->normZ, 0.0f } ) );
-        //        //colour, // D3DCOLORVALUE{ pVertex->colR, pVertex->colG, pVertex->colB, pVertex->colA },
-        //        //pVertex->tu, // 0.0f, // float tu, 
-        //        //pVertex->tv ) ); //.0f ); // float tv );
-        //}
     }
 
     return m_physicsEngine.createObject( mass, infiniteMass, centerOfMassLocalPosition,
