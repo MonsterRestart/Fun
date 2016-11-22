@@ -18,13 +18,9 @@ Experiment/D12Engine/MiniEngine/Build_VS14/x64/Debug/
 Experiment/D12Engine/MiniEngine/Build_VS14/x64/Release/
 Experiment/D12Engine/MiniEngine/Build_VS14/x64/Profile/
 
-
-
 Experiment/D12Engine/MiniEngine/Engine/Engine_VS14.VC.db
 Experiment/D12Engine/MiniEngine/ModelConverter/assimp-3.1.1-win-binaries/*
 Experiment/D12Engine/MiniEngine/ModelConverter/assimp-3.3.1/*
 
-Experiment/D12Engine/MiniEngine/Engine/Engine_VS14.VC.db
-*.bak
-Experiment/D12Engine/MiniEngine/Engine/Engine_VS14.VC.db
-Experiment/D12Engine/MiniEngine/Engine/Engine_VS14.VC.db
+Experiment/D12Engine/MiniEngine/ModelConverter/ModelConverter_VS14.VC.db
+
