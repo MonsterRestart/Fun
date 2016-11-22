@@ -431,7 +431,6 @@ void Engine::Startup( void )
     PostEffects::EnableHDR = true;
     PostEffects::EnableAdaptation = true;
     //Graphics::g_bEnableHDROutput = false;
-
 }
 
 void Engine::Cleanup( void )

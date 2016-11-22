@@ -43,12 +43,12 @@ public:
 	void Clear();
 	bool Load(const char *filename);
 	bool Save(const char *filename) const;
-
+	
     const Matrix4& transformation() const
     {
         return m_transformation;
     }
-
+	
 	struct BoundingBox
 	{
 		Vector3 min;
