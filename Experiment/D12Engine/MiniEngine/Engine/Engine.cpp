@@ -33,6 +33,7 @@
 #include "GameInput.h"
 #include "Physics/Engine/physicsEngine.h"
 #include <array>
+#include <vector>
 
 #include "CompiledShaders/DepthViewerVS.h"
 #include "CompiledShaders/DepthViewerPS.h"
@@ -130,25 +131,95 @@ int Engine::createPhysicsObject( const Model& model )
 
     if( model.m_pVertexData && model.m_pIndexData )
     {
+        const int numVertices = model.m_Header.vertexDataByteSize / model.m_VertexStride;
+        const int numIndices = model.m_Header.indexDataByteSize / sizeof( uint16_t );
+
+        std::vector< Vector4 > optimisedVertices;
+        const uint8_t *p = ( uint8_t* )( model.m_pVertexData );
+        for( int iVert = 0; iVert != numVertices; ++iVert, p += model.m_VertexStride )
+        {
+            struct Position { float posX, posY, posZ; };
+            const Position* pPos = ( const Position* )p;
+
+            optimisedVertices.push_back( Vector4( pPos->posX, pPos->posY, pPos->posZ, 1.0f ) );
+        }
+
+        std::vector< uint16_t > optimisedIndices;
+        for( int iIndex = 0; iIndex != numIndices; ++iIndex, p += model.m_VertexStride )
+        {
+            const uint16_t index = ( ( const uint16_t* )( model.m_pIndexData ) )[ iIndex ];
+            assert( index < numVertices );
+            optimisedIndices.push_back( index );
+        }
+
+        // Find and remove duplicates
+        if( optimisedVertices.size() > 1 )
+        {
+            for( int iVertA = 0; iVertA < ( optimisedVertices.size() - 1 ); ++iVertA )
+            {
+                const Vector4& vertA = optimisedVertices[ iVertA ];
+
+                int iVertB = iVertA + 1;
+                while( iVertB < optimisedVertices.size() )
+                {
+                    const Vector4& vertB = optimisedVertices[ iVertB ];
+                    const Vector4 diff = vertB - vertA;
+
+                    const float maxDiff = 0.001f;
+                    if( ( fabsf( diff.GetX() ) < maxDiff ) &&
+                        ( fabsf( diff.GetY() ) < maxDiff ) &&
+                        ( fabsf( diff.GetZ() ) < maxDiff ) &&
+                        ( fabsf( diff.GetW() ) < maxDiff ) )
+                    {
+                        auto itr = optimisedVertices.begin();
+                        std::advance( itr, iVertB );
+                        optimisedVertices.erase( itr );
+
+                        for( uint16_t& index : optimisedIndices )
+                        {
+                            if( index == iVertB )
+                            {
+                                index = iVertA;
+                            }
+                            else if( index > iVertB )
+                            {
+                                --index;
+                            }
+                        }
+                    }
+                    else
+                    {
+                        ++iVertB;
+                    }
+                }
+            }
+        }
+
         for( uint32_t meshIndex = 0; meshIndex < model.m_Header.meshCount; meshIndex++)
         {
             const Model::Mesh& mesh = model.m_pMesh[meshIndex];
 
-            const uint8_t *p = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_position ].offset );
-            const uint8_t *n = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_normal ].offset );
-            for( uint32_t vertexIndex = 0; vertexIndex != mesh.vertexCount; ++vertexIndex, p += model.m_VertexStride, n += model.m_VertexStride )
+            //const uint8_t *p = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_position ].offset );
+            //const uint8_t *n = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_normal ].offset );
+            //for( uint32_t vertexIndex = 0; vertexIndex != mesh.vertexCount; ++vertexIndex, p += model.m_VertexStride, n += model.m_VertexStride )
+            for( const Vector4& vertex : optimisedVertices )
             {
-                struct Position { float posX, posY, posZ; };
-                struct Normal { float normX, normY, normZ; };
-                const Position* pPos = ( const Position* )p;
-                const Normal* pNorm = ( const Normal* )n;
-
                 vertices.push_back( Physics::Vertex(
-                    DirectX::XMVECTOR{ pPos->posX, pPos->posY, pPos->posZ, 1.0f },
-                    DirectX::XMVECTOR{ pNorm->normX, pNorm->normY, pNorm->normZ, 0.0f } ) );
-            }
+                    vertex, // DirectX::XMVECTOR{ vertex.GetX(), vertex.GetY(), vertex.GetZ(), vertex.GetW() },
+                    DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 0.0f } ) );
 
-            const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( model.m_pIndexData + mesh.indexDataByteOffset );
+                //struct Position { float posX, posY, posZ; };
+                //struct Normal { float normX, normY, normZ; };
+                //const Position* pPos = ( const Position* )p;
+                //const Normal* pNorm = ( const Normal* )n;
+
+                //vertices.push_back( Physics::Vertex(
+                //    DirectX::XMVECTOR{ pPos->posX, pPos->posY, pPos->posZ, 1.0f },
+                //    DirectX::XMVECTOR{ pNorm->normX, pNorm->normY, pNorm->normZ, 0.0f } ) );
+            }
+            
+            const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( &optimisedIndices[ mesh.indexDataByteOffset / sizeof( uint16_t ) ] );
+            //const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( model.m_pIndexData + mesh.indexDataByteOffset );
             for( uint32_t iTriangleMeshVertexIndex = 0; iTriangleMeshVertexIndex < mesh.indexCount; iTriangleMeshVertexIndex += 3 )
             {
                 std::array< Vector3, 3 > edgeDirs;
@@ -172,7 +243,9 @@ int Engine::createPhysicsObject( const Model& model )
                     edges.back().addVertexIndex( fromVertexIndex );
                     edges.back().addVertexIndex( toVertexIndex );
                     edges.back().addTriangleIndex( ( int )triangles.size() );
-
+                    
+                    vertices[ toVertexIndex ].addEdgeIndex( ( int )edges.size() - 1 );
+                    vertices[ fromVertexIndex ].addEdgeIndex( ( int )edges.size() - 1 );
                 }
 
                 const Vector3 triangleNorm = Normalize( Cross( edgeDirs[ 0 ], edgeDirs[ 1 ] ) );
@@ -185,8 +258,76 @@ int Engine::createPhysicsObject( const Model& model )
                 triangles.back().addEdgeIndex( ( int )edges.size() - 1 );
                 triangles.back().addEdgeIndex( ( int )edges.size() - 2 );
                 triangles.back().addEdgeIndex( ( int )edges.size() - 3 );
+
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
+                
+                edges[ ( int )edges.size() - 1 ].addTriangleIndex( ( int )triangles.size() - 1 );
+                edges[ ( int )edges.size() - 2 ].addTriangleIndex( ( int )triangles.size() - 1 );
+                edges[ ( int )edges.size() - 3 ].addTriangleIndex( ( int )triangles.size() - 1 );
             }
         }
+
+        
+
+        //for( uint32_t meshIndex = 0; meshIndex < model.m_Header.meshCount; meshIndex++)
+        //{
+        //    const Model::Mesh& mesh = model.m_pMesh[meshIndex];
+
+        //    const uint8_t *p = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_position ].offset );
+        //    const uint8_t *n = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_normal ].offset );
+        //    for( uint32_t vertexIndex = 0; vertexIndex != mesh.vertexCount; ++vertexIndex, p += model.m_VertexStride, n += model.m_VertexStride )
+        //    {
+        //        struct Position { float posX, posY, posZ; };
+        //        struct Normal { float normX, normY, normZ; };
+        //        const Position* pPos = ( const Position* )p;
+        //        const Normal* pNorm = ( const Normal* )n;
+
+        //        vertices.push_back( Physics::Vertex(
+        //            DirectX::XMVECTOR{ pPos->posX, pPos->posY, pPos->posZ, 1.0f },
+        //            DirectX::XMVECTOR{ pNorm->normX, pNorm->normY, pNorm->normZ, 0.0f } ) );
+        //    }
+
+        //    const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( model.m_pIndexData + mesh.indexDataByteOffset );
+        //    for( uint32_t iTriangleMeshVertexIndex = 0; iTriangleMeshVertexIndex < mesh.indexCount; iTriangleMeshVertexIndex += 3 )
+        //    {
+        //        std::array< Vector3, 3 > edgeDirs;
+
+        //        for( int iEdge = 0; iEdge != 3; ++iEdge )
+        //        {
+        //            const int fromVertexIndex = pMeshVertexIndex[ iTriangleMeshVertexIndex + iEdge ];
+        //            const int toVertexIndex = pMeshVertexIndex[ iTriangleMeshVertexIndex + ( ( iEdge == 2 ) ? 0 : ( iEdge + 1 ) ) ];
+        //            assert( fromVertexIndex < vertices.size() );
+        //            assert( toVertexIndex < vertices.size() );
+
+        //            edgeDirs[ iEdge ] = Vector3(
+        //                vertices[ toVertexIndex ].position() - 
+        //                vertices[ fromVertexIndex ].position() );
+        //            
+        //            const Vector3 norm = 
+        //                Vector3( vertices[ fromVertexIndex ].normal() ) +
+        //                ( ( Vector3( vertices[ toVertexIndex ].normal() ) - Vector3( vertices[ fromVertexIndex ].normal() ) ) / 2.0f );
+
+        //            edges.push_back( Physics::Edge( DirectX::XMVECTOR{ norm.GetX(), norm.GetY(), norm.GetZ(), 0.0f } ) );
+        //            edges.back().addVertexIndex( fromVertexIndex );
+        //            edges.back().addVertexIndex( toVertexIndex );
+        //            edges.back().addTriangleIndex( ( int )triangles.size() );
+
+        //        }
+
+        //        const Vector3 triangleNorm = Normalize( Cross( edgeDirs[ 0 ], edgeDirs[ 1 ] ) );
+        //        triangles.push_back( Physics::Triangle( DirectX::XMVECTOR{ triangleNorm.GetX(), triangleNorm.GetY(), triangleNorm.GetZ(), 0.0f } ) );
+
+        //        triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] );
+        //        triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] );
+        //        triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] );
+
+        //        triangles.back().addEdgeIndex( ( int )edges.size() - 1 );
+        //        triangles.back().addEdgeIndex( ( int )edges.size() - 2 );
+        //        triangles.back().addEdgeIndex( ( int )edges.size() - 3 );
+        //    }
+        //}
     }
 
     return m_physicsEngine.createObject( mass, infiniteMass, centerOfMassLocalPosition,
