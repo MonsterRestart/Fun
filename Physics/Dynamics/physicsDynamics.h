@@ -21,7 +21,7 @@ private:
     DirectX::XMMATRIX m_transformation;
 
 public:
-    Dynamics( );
+    Dynamics();
 
     Dynamics( 
         const DirectX::XMVECTOR& position,
@@ -78,7 +78,6 @@ public:
         return m_transformation;
     }
 };
-
 
 class Dynamics2D
 {

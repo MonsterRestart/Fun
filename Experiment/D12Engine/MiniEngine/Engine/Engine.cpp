@@ -53,8 +53,11 @@ public:
         : m_pCameraController( nullptr )
         , m_OriginalModel( Matrix4( Vector3( 1.0f, 0.0f, 0.0f ), Vector3( 0.0f, 1.0f, 0.0f ), Vector3( 0.0f, 0.0f, 1.0f ), Vector3( 1000.0f, 0.0f, 2000.0f ) ) )
         , m_NewModel( Matrix4( kIdentity ) )
+        , m_newPhysicsObjectUID( PHYSICS_OBJECT_NULL_UID )
         , m_FloorModel( Matrix4( kIdentity ) )
         , m_floorPhysicsObjectUID( PHYSICS_OBJECT_NULL_UID )
+        , m_CylinderModel( Matrix4( kIdentity ) )
+        , m_cylinderPhysicsObjectUID( PHYSICS_OBJECT_NULL_UID )
     {
     }
 
@@ -83,8 +86,11 @@ private:
     D3D12_CPU_DESCRIPTOR_HANDLE m_ExtraTextures[2];
     Model m_OriginalModel;
     Model m_NewModel;
+    int m_newPhysicsObjectUID;
     Model m_FloorModel;
     int m_floorPhysicsObjectUID;
+    Model m_CylinderModel;
+    int m_cylinderPhysicsObjectUID;
 
     Vector3 m_SunDirection;
     ShadowCamera m_SunShadow;
@@ -197,32 +203,19 @@ int Engine::createPhysicsObject( const Model& model )
 
         for( uint32_t meshIndex = 0; meshIndex < model.m_Header.meshCount; meshIndex++)
         {
+            assert( meshIndex == 0 ); // We don't handle models with more than one mesh. We've optimized the set of vertices so we need to handle each mesh's vertex index start.
             const Model::Mesh& mesh = model.m_pMesh[meshIndex];
 
-            //const uint8_t *p = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_position ].offset );
-            //const uint8_t *n = (uint8_t*)( model.m_pVertexData + mesh.vertexDataByteOffset + mesh.attrib[ Model::attrib_normal ].offset );
-            //for( uint32_t vertexIndex = 0; vertexIndex != mesh.vertexCount; ++vertexIndex, p += model.m_VertexStride, n += model.m_VertexStride )
             for( const Vector4& vertex : optimisedVertices )
             {
-                vertices.push_back( Physics::Vertex(
-                    vertex, // DirectX::XMVECTOR{ vertex.GetX(), vertex.GetY(), vertex.GetZ(), vertex.GetW() },
-                    DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 0.0f } ) );
-
-                //struct Position { float posX, posY, posZ; };
-                //struct Normal { float normX, normY, normZ; };
-                //const Position* pPos = ( const Position* )p;
-                //const Normal* pNorm = ( const Normal* )n;
-
-                //vertices.push_back( Physics::Vertex(
-                //    DirectX::XMVECTOR{ pPos->posX, pPos->posY, pPos->posZ, 1.0f },
-                //    DirectX::XMVECTOR{ pNorm->normX, pNorm->normY, pNorm->normZ, 0.0f } ) );
+                vertices.push_back( Physics::Vertex( vertex, DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 0.0f } ) );
             }
             
             const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( &optimisedIndices[ mesh.indexDataByteOffset / sizeof( uint16_t ) ] );
-            //const uint16_t* const pMeshVertexIndex = ( const uint16_t* )( model.m_pIndexData + mesh.indexDataByteOffset );
             for( uint32_t iTriangleMeshVertexIndex = 0; iTriangleMeshVertexIndex < mesh.indexCount; iTriangleMeshVertexIndex += 3 )
             {
                 std::array< Vector3, 3 > edgeDirs;
+                std::array< int, 3 > edgeIndices;
 
                 for( int iEdge = 0; iEdge != 3; ++iEdge )
                 {
@@ -231,41 +224,96 @@ int Engine::createPhysicsObject( const Model& model )
                     assert( fromVertexIndex < vertices.size() );
                     assert( toVertexIndex < vertices.size() );
 
-                    edgeDirs[ iEdge ] = Vector3(
-                        vertices[ toVertexIndex ].position() - 
-                        vertices[ fromVertexIndex ].position() );
-                    
-                    const Vector3 norm = 
-                        Vector3( vertices[ fromVertexIndex ].normal() ) +
-                        ( ( Vector3( vertices[ toVertexIndex ].normal() ) - Vector3( vertices[ fromVertexIndex ].normal() ) ) / 2.0f );
+                    edgeDirs[ iEdge ] = Vector3( vertices[ toVertexIndex ].position() - vertices[ fromVertexIndex ].position() );
+                    //const Vector3 norm = 
+                    //    Vector3( vertices[ fromVertexIndex ].normal() ) +
+                    //    ( ( Vector3( vertices[ toVertexIndex ].normal() ) - Vector3( vertices[ fromVertexIndex ].normal() ) ) / 2.0f );
 
-                    edges.push_back( Physics::Edge( DirectX::XMVECTOR{ norm.GetX(), norm.GetY(), norm.GetZ(), 0.0f } ) );
-                    edges.back().addVertexIndex( fromVertexIndex );
-                    edges.back().addVertexIndex( toVertexIndex );
-                    edges.back().addTriangleIndex( ( int )triangles.size() );
-                    
-                    vertices[ toVertexIndex ].addEdgeIndex( ( int )edges.size() - 1 );
-                    vertices[ fromVertexIndex ].addEdgeIndex( ( int )edges.size() - 1 );
+                    // Search existing edges in case this one already exists
+                    const Physics::Object::Edges::iterator edgeItr = find_if( edges.begin(), edges.end(),
+                        [&]( const Physics::Edge& edge )
+                        {
+                            assert( edge.vertexIndices().size() == 2 );
+                            return ( ( fromVertexIndex == edge.vertexIndices()[ 0 ] ) && ( toVertexIndex == edge.vertexIndices()[ 1 ] ) ) ||
+                                   ( ( fromVertexIndex == edge.vertexIndices()[ 1 ] ) && ( toVertexIndex == edge.vertexIndices()[ 0 ] ) );
+                        } );
+                    if( edgeItr != edges.end() )
+                    {
+                        edgeIndices[ iEdge ] = ( int )( edgeItr - edges.begin() );
+                        edgeItr->addTriangleIndex( ( int )triangles.size() );
+                    }
+                    else
+                    {
+                        edges.push_back( Physics::Edge( DirectX::XMVECTOR{ 0.0f, 1.0f, 0.0f, 0.0f } ) );
+                        edges.back().addVertexIndex( fromVertexIndex );
+                        edges.back().addVertexIndex( toVertexIndex );
+                        edges.back().addTriangleIndex( ( int )triangles.size() );
+
+                        const int edgeIndex = ( int )( edges.size() - 1 );
+                        vertices[ toVertexIndex ].addEdgeIndex( edgeIndex );
+                        vertices[ fromVertexIndex ].addEdgeIndex( edgeIndex );
+                        edgeIndices[ iEdge ] = edgeIndex;
+                    }
                 }
 
                 const Vector3 triangleNorm = Normalize( Cross( edgeDirs[ 0 ], edgeDirs[ 1 ] ) );
                 triangles.push_back( Physics::Triangle( DirectX::XMVECTOR{ triangleNorm.GetX(), triangleNorm.GetY(), triangleNorm.GetZ(), 0.0f } ) );
 
                 triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] );
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] ].addTriangleIndex( ( int )( triangles.size() - 1 ) );
                 triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] );
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] ].addTriangleIndex( ( int )( triangles.size() - 1 ) );
                 triangles.back().addVertexIndex( ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] );
+                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] ].addTriangleIndex( ( int )( triangles.size() - 1 ) );
 
-                triangles.back().addEdgeIndex( ( int )edges.size() - 1 );
-                triangles.back().addEdgeIndex( ( int )edges.size() - 2 );
-                triangles.back().addEdgeIndex( ( int )edges.size() - 3 );
+                for( const int edgeIndex : edgeIndices )
+                {
+                    triangles.back().addEdgeIndex( edgeIndex );
+                }
+            }
 
-                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 0 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
-                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 1 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
-                vertices[ ( int )pMeshVertexIndex[ iTriangleMeshVertexIndex + 2 ] ].addTriangleIndex( ( int )triangles.size() - 1 );
+            // loop over all edges and average normals of tris
+            for( Physics::Edge& edge : edges )
+            {
+                assert( edge.triangleIndices().size() == 2 );
+                assert( edge.triangleIndices()[ 0 ] < triangles.size() );
+                assert( edge.triangleIndices()[ 1 ] < triangles.size() );
                 
-                edges[ ( int )edges.size() - 1 ].addTriangleIndex( ( int )triangles.size() - 1 );
-                edges[ ( int )edges.size() - 2 ].addTriangleIndex( ( int )triangles.size() - 1 );
-                edges[ ( int )edges.size() - 3 ].addTriangleIndex( ( int )triangles.size() - 1 );
+                Vector4 averageNormal = 
+                    Vector4( triangles[ edge.triangleIndices()[ 0 ] ].normal() ) +
+                    Vector4( triangles[ edge.triangleIndices()[ 1 ] ].normal() );
+                averageNormal /= 2.0f;
+                averageNormal = Vector4( DirectX::XMVector4Normalize( averageNormal ) );
+                edge.setNormal( averageNormal );
+            }
+
+            // loop over all verts and average all norms of tris
+            for( Physics::Vertex& vertex : vertices )
+            {
+                assert( vertex.triangleIndices().size() >= 3 );
+
+                Dav::Vector< DirectX::XMVECTOR, 8 > normals;
+                for( const int triangleIndex : vertex.triangleIndices() )
+                {
+                    assert( triangleIndex < ( int )triangles.size() );
+                    normals.push_back( triangles[ triangleIndex ].normal() );
+                }
+
+                normals.erase( unique( normals.begin(), normals.end(), []( const DirectX::XMVECTOR& lhs, const DirectX::XMVECTOR& rhs )
+                {
+                    return DirectX::XMVector4NearEqual( lhs, rhs, DirectX::XMVECTOR{ FLT_EPSILON, FLT_EPSILON, FLT_EPSILON, FLT_EPSILON } );
+                } ), normals.end() );
+                assert( !normals.empty() );
+
+                Vector4 averageNormal( 0.0f, 0.0f, 0.0f, 0.0f );
+                for( const DirectX::XMVECTOR& normal : normals )
+                {
+                    averageNormal = Vector4( DirectX::XMVectorAdd( averageNormal, normal ) );
+                }
+
+                averageNormal /= ( float )normals.size();
+                averageNormal = Vector4( DirectX::XMVector4Normalize( averageNormal ) );
+                vertex.setNormal( averageNormal );
             }
         }
 
@@ -414,8 +462,13 @@ void Engine::Startup( void )
 
     ASSERT(m_FloorModel.Load("Models/floor.h3d"), "Failed to load model");
     ASSERT(m_FloorModel.m_Header.meshCount > 0, "Model contains no meshes");
+    
+    ASSERT(m_CylinderModel.Load("Models/cylinder.h3d"), "Failed to load model");
+    ASSERT(m_CylinderModel.m_Header.meshCount > 0, "Model contains no meshes");
 
+    m_newPhysicsObjectUID = createPhysicsObject( m_NewModel );
     m_floorPhysicsObjectUID = createPhysicsObject( m_FloorModel );
+    m_cylinderPhysicsObjectUID = createPhysicsObject( m_CylinderModel );
 
     CreateParticleEffects();
 
@@ -435,9 +488,16 @@ void Engine::Startup( void )
 
 void Engine::Cleanup( void )
 {
+    m_physicsEngine.destroyObject( m_cylinderPhysicsObjectUID );
+    m_cylinderPhysicsObjectUID = PHYSICS_OBJECT_NULL_UID;
+
     m_physicsEngine.destroyObject( m_floorPhysicsObjectUID );
     m_floorPhysicsObjectUID = PHYSICS_OBJECT_NULL_UID;
 
+    m_physicsEngine.destroyObject( m_newPhysicsObjectUID );
+    m_newPhysicsObjectUID = PHYSICS_OBJECT_NULL_UID;
+
+    m_CylinderModel.Clear();
     m_FloorModel.Clear();
     m_NewModel.Clear();
     m_OriginalModel.Clear();
@@ -599,6 +659,7 @@ void Engine::RenderScene( void )
         RenderObjects( m_OriginalModel, gfxContext, m_ViewProjMatrix );
         RenderObjects( m_NewModel, gfxContext, m_ViewProjMatrix );
         RenderObjects( m_FloorModel, gfxContext, m_ViewProjMatrix );
+        RenderObjects( m_CylinderModel, gfxContext, m_ViewProjMatrix );
     }
 
     SSAO::Render(gfxContext, m_Camera);
@@ -632,6 +693,7 @@ void Engine::RenderScene( void )
             RenderObjects( m_OriginalModel, gfxContext, m_SunShadow.GetViewProjMatrix() );
             RenderObjects( m_NewModel, gfxContext, m_SunShadow.GetViewProjMatrix() );
             RenderObjects( m_FloorModel, gfxContext, m_SunShadow.GetViewProjMatrix() );
+            RenderObjects( m_CylinderModel, gfxContext, m_SunShadow.GetViewProjMatrix() );
             g_ShadowBuffer.EndRendering(gfxContext);
         }
 
@@ -655,6 +717,7 @@ void Engine::RenderScene( void )
             RenderObjects( m_OriginalModel, gfxContext, m_ViewProjMatrix );
             RenderObjects( m_NewModel, gfxContext, m_ViewProjMatrix );
             RenderObjects( m_FloorModel, gfxContext, m_ViewProjMatrix );
+            RenderObjects( m_CylinderModel, gfxContext, m_ViewProjMatrix );
         }
 
         {

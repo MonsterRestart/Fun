@@ -52,8 +52,6 @@ public:
     void draw(
         GraphicsContext& gfxContext,
         const Math::Matrix4& ViewProjMat ) const;
-        //const Math::Camera& camera,
-        //const GameCore::ShadowCamera& sunShadow ) const;
 
     int createShape(
         XMVECTORVectorType const & vertexVector,
@@ -93,7 +91,6 @@ public:
         const Object::Vertices& vertices,
         const Object::Edges& edges,
         const Object::Triangles& triangles );
-        //const Graphics::Model& model );
 
     void destroyObject( int UID );
 
@@ -142,7 +139,7 @@ public:
         return m_stepCount;
     }
 
-private:    
+private:
     void stepObjects( float deltaTime );
     void stepShapes( float deltaTime );
 

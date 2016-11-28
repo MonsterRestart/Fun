@@ -68,10 +68,10 @@
       <AdditionalOptions>/nodefaultlib:MSVCRT %(AdditionalOptions)</AdditionalOptions>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
       <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;C:\Development\boost_1_62_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun;C:\Development\boost_1_62_0</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <PostBuildEvent>
@@ -81,13 +81,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Profile|x64'">
     <Link />
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun;C:\Development\boost_1_62_0</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
       <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;C:\Development\boost_1_62_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /C /I /R /Y $(SolutionDir)..\ModelConverter\assimp-3.1.1-win-binaries\bin64\assimp.dll $(SolutionDir)</Command>
@@ -96,13 +96,13 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link />
     <ClCompile>
-      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Core;..\Model;..\ModelConverter\assimp-3.1.1-win-binaries\include;C:\Development\Fun;C:\Development\boost_1_62_0</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>MODEL_ENABLE_ASSIMP;MODEL_ENABLE_OPTIMIZER;_WIN32;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
       <AdditionalDependencies>assimp.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\ModelConverter\assimp-3.1.1-win-binaries\lib64;C:\Development\boost_1_62_0\stage\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /E /C /I /R /Y $(SolutionDir)..\ModelConverter\assimp-3.1.1-win-binaries\bin64\assimp.dll $(SolutionDir)</Command>
