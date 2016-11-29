@@ -48,6 +48,8 @@ public:
     {
         return m_transformation;
     }
+
+    void setTransformation( const Matrix4& transformation );
 	
 	struct BoundingBox
 	{

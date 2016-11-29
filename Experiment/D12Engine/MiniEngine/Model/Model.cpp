@@ -232,4 +232,9 @@ void Model::LoadPostProcess(bool needToOptimize)
 	}
 }
 
+void Model::setTransformation( const Matrix4& transformation )
+{
+    m_transformation = transformation;
+}
+
 } // namespace Graphics

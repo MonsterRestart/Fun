@@ -1,17 +1,3 @@
-//
-// Copyright (c) Microsoft. All rights reserved.
-// This code is licensed under the MIT License (MIT).
-// THIS CODE IS PROVIDED *AS IS* WITHOUT WARRANTY OF
-// ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING ANY
-// IMPLIED WARRANTIES OF FITNESS FOR A PARTICULAR
-// PURPOSE, MERCHANTABILITY, OR NON-INFRINGEMENT.
-//
-// Developed by Minigraph
-//
-// Author(s):  Alex Nankervis
-//             James Stanard
-//
-
 #include "GameCore.h"
 #include "GraphicsCore.h"
 #include "CameraController.h"
@@ -95,7 +81,7 @@ private:
     Vector3 m_SunDirection;
     ShadowCamera m_SunShadow;
 
-    int createPhysicsObject( const Model& model );
+    int createPhysicsObject( const Model& model, bool infiniteMass );
     Physics::EngineClass m_physicsEngine;
 };
 
@@ -109,10 +95,18 @@ NumVar ShadowDimX("Application/Shadow Dim X", 5000, 1000, 10000, 100 );
 NumVar ShadowDimY("Application/Shadow Dim Y", 3000, 1000, 10000, 100 );
 NumVar ShadowDimZ("Application/Shadow Dim Z", 3000, 1000, 10000, 100 );
 
-int Engine::createPhysicsObject( const Model& model )
+const Vector4 g_accelerationDueToGravity( 0.0f, -9.8f, 0.0f, 0.0f );
+bool g_applyGravity = true;
+
+const Vector4 g_force0LocalSpace( 0.0f, -80.0f, 0.0f, 0.0f );
+const Vector4  g_force0ApplicationPositionLocalSpace( -4.0f, 1.0f, 0.0, 1.0f );
+
+const Vector4 g_force1LocalSpace( 0.0f, -80.0f, 0.0f, 0.0f );
+const Vector4 g_force1ApplicationPositionLocalSpace( 4.0f, 1.0f, 0.0, 1.0f );
+
+int Engine::createPhysicsObject( const Model& model, const bool infiniteMass )
 {
     const float mass = 1.0f;
-    const bool infiniteMass = true;
 
     const Vector4 centerOfMassLocalPosition( 0.0f, 0.0f, 0.0f, 1.0f );
     const Vector4 inertia( 1.0f, 1.0f, 1.0f, 1.0f );
@@ -225,9 +219,6 @@ int Engine::createPhysicsObject( const Model& model )
                     assert( toVertexIndex < vertices.size() );
 
                     edgeDirs[ iEdge ] = Vector3( vertices[ toVertexIndex ].position() - vertices[ fromVertexIndex ].position() );
-                    //const Vector3 norm = 
-                    //    Vector3( vertices[ fromVertexIndex ].normal() ) +
-                    //    ( ( Vector3( vertices[ toVertexIndex ].normal() ) - Vector3( vertices[ fromVertexIndex ].normal() ) ) / 2.0f );
 
                     // Search existing edges in case this one already exists
                     const Physics::Object::Edges::iterator edgeItr = find_if( edges.begin(), edges.end(),
@@ -459,16 +450,20 @@ void Engine::Startup( void )
 
     ASSERT(m_NewModel.Load("Models/torus.h3d"), "Failed to load model");
     ASSERT(m_NewModel.m_Header.meshCount > 0, "Model contains no meshes");
+    const Matrix4 newTransformation( OrthogonalTransform( Vector3( 0.0f, 1000.0f, -500.0f ) ) );
+    m_NewModel.setTransformation( newTransformation );
 
     ASSERT(m_FloorModel.Load("Models/floor.h3d"), "Failed to load model");
     ASSERT(m_FloorModel.m_Header.meshCount > 0, "Model contains no meshes");
     
     ASSERT(m_CylinderModel.Load("Models/cylinder.h3d"), "Failed to load model");
     ASSERT(m_CylinderModel.m_Header.meshCount > 0, "Model contains no meshes");
+    const Matrix4 cylinderTransformation( OrthogonalTransform( Vector3( 500.0f, 1000.0f, 500.0f ) ) );
+    m_CylinderModel.setTransformation( cylinderTransformation );
 
-    m_newPhysicsObjectUID = createPhysicsObject( m_NewModel );
-    m_floorPhysicsObjectUID = createPhysicsObject( m_FloorModel );
-    m_cylinderPhysicsObjectUID = createPhysicsObject( m_CylinderModel );
+    m_newPhysicsObjectUID = createPhysicsObject( m_NewModel, false );
+    m_floorPhysicsObjectUID = createPhysicsObject( m_FloorModel, true );
+    m_cylinderPhysicsObjectUID = createPhysicsObject( m_CylinderModel, false );
 
     CreateParticleEffects();
 
@@ -580,7 +575,44 @@ void Engine::Update( float deltaT )
     m_MainScissor.right = (LONG)g_SceneColorBuffer.GetWidth();
     m_MainScissor.bottom = (LONG)g_SceneColorBuffer.GetHeight();
 
+    // Apply external physically forces
+    {
+        Physics::Object* const pNewPhysicsObject = m_physicsEngine.object( m_newPhysicsObjectUID );
+        assert( pNewPhysicsObject );
+
+        pNewPhysicsObject->setForce( g_accelerationDueToGravity * pNewPhysicsObject->mass() );
+        //pNewPhysicsObject->setTorque();
+
+        Physics::Object* const pFloorPhysicsObject = m_physicsEngine.object( m_floorPhysicsObjectUID );
+        assert( pFloorPhysicsObject );
+
+        pFloorPhysicsObject->setForce( g_accelerationDueToGravity * pFloorPhysicsObject->mass() );
+        //pFloorPhysicsObject->setTorque();
+
+        Physics::Object* const pCylinderPhysicsObject = m_physicsEngine.object( m_cylinderPhysicsObjectUID );
+        assert( pCylinderPhysicsObject );
+
+        pCylinderPhysicsObject->setForce( g_accelerationDueToGravity * pCylinderPhysicsObject->mass() );
+        //pNewPhysicsObject->setTorque();
+    }
+
     m_physicsEngine.step( deltaT );
+
+    // Post physics step
+    {
+        Physics::Object* const pNewPhysicsObject = m_physicsEngine.object( m_newPhysicsObjectUID );
+        assert( pNewPhysicsObject );
+        m_NewModel.setTransformation( Matrix4( pNewPhysicsObject->dynamics().transformation() ) );
+
+        Physics::Object* const pFloorPhysicsObject = m_physicsEngine.object( m_floorPhysicsObjectUID );
+        assert( pFloorPhysicsObject );
+        m_FloorModel.setTransformation( Matrix4( pFloorPhysicsObject->dynamics().transformation() ) );
+
+        Physics::Object* const pCylinderPhysicsObject = m_physicsEngine.object( m_cylinderPhysicsObjectUID );
+        assert( pCylinderPhysicsObject );
+        m_CylinderModel.setTransformation( Matrix4( pCylinderPhysicsObject->dynamics().transformation() ) );
+    }
+
 }
 
 void Engine::RenderObjects( const Model& model, GraphicsContext& gfxContext, const Matrix4& ViewProjMat )

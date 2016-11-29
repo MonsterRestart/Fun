@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="14">
+<physicsDynamics class_id="0" tracking_level="0" version="0">
+	<position>
+		<x>0.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>2.000000000e+00</z>
+		<w>3.000000000e+00</w>
+	</position>
+	<orientation>
+		<x>0.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>2.000000000e+00</z>
+		<w>3.000000000e+00</w>
+	</orientation>
+	<velocity>
+		<x>0.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>2.000000000e+00</z>
+		<w>3.000000000e+00</w>
+	</velocity>
+	<angularVelocity>
+		<x>0.000000000e+00</x>
+		<y>1.000000000e+00</y>
+		<z>2.000000000e+00</z>
+		<w>3.000000000e+00</w>
+	</angularVelocity>
+	<transformation class_id="2" tracking_level="0" version="0">
+		<a>
+			<x>0.000000000e+00</x>
+			<y>1.000000000e+00</y>
+			<z>2.000000000e+00</z>
+			<w>3.000000000e+00</w>
+		</a>
+		<b>
+			<x>0.000000000e+00</x>
+			<y>1.000000000e+00</y>
+			<z>2.000000000e+00</z>
+			<w>3.000000000e+00</w>
+		</b>
+		<c>
+			<x>0.000000000e+00</x>
+			<y>1.000000000e+00</y>
+			<z>2.000000000e+00</z>
+			<w>3.000000000e+00</w>
+		</c>
+		<d>
+			<x>0.000000000e+00</x>
+			<y>1.000000000e+00</y>
+			<z>2.000000000e+00</z>
+			<w>3.000000000e+00</w>
+		</d>
+	</transformation>
+</physicsDynamics>
+</boost_serialization>
+
